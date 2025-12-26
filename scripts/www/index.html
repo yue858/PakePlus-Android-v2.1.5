@@ -1,11 +1,387 @@
 <!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>PakePlus</title>
-    </head>
-    <body>
-        PakePlus
-    </body>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iOS玻璃效果卡片</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #fff; /* 改为纯白背景，匹配图片的清新感 */
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 背景装饰元素 */
+        .bg-element {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: -1;
+        }
+
+        .element-1 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%);
+            top: 10%;
+            left: 15%;
+        }
+
+        .element-2 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            bottom: 10%;
+            right: 15%;
+        }
+
+        .element-3 {
+            width: 200px;
+            height: 200px;
+            background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+            top: 60%;
+            left: 30%;
+        }
+
+        /* 樱花花瓣样式 - 匹配图片的轻盈粉色 */
+        .sakura-petal {
+            position: absolute;
+            background: linear-gradient(135deg, rgba(255, 182, 193, 0.8), rgba(255, 192, 203, 0.4));
+            border-radius: 50% 0 50% 50%; /* 花瓣形状 */
+            pointer-events: none;
+            z-index: 5; /* 卡片之下，背景之上 */
+            animation: petalFall linear infinite, petalSway ease-in-out infinite;
+        }
+
+        /* 花瓣飘落动画 */
+        @keyframes petalFall {
+            0% {
+                top: -10%;
+                transform: rotate(0deg);
+            }
+            100% {
+                top: 110%;
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 花瓣左右摇摆动画 */
+        @keyframes petalSway {
+            0%, 100% {
+                transform: translateX(0) rotate(0deg);
+            }
+            25% {
+                transform: translateX(20px) rotate(90deg);
+            }
+            50% {
+                transform: translateX(-15px) rotate(180deg);
+            }
+            75% {
+                transform: translateX(10px) rotate(270deg);
+            }
+        }
+
+        .glass-card {
+            width: 90%;
+            max-width: 450px;
+            padding: 40px 30px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            box-shadow: 
+                0 8px 32px rgba(255, 123, 172, 0.15), /* 改为粉色系阴影，匹配樱花 */
+                inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 182, 193, 0.4); /* 粉色边框，匹配图片 */
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            z-index: 10; /* 高于樱花 */
+        }
+
+        /* 玻璃效果装饰 */
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 60%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .main-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: #e85b89; /* 粉色标题，匹配图片 */
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .sub-title {
+            font-size: 18px;
+            font-weight: 400;
+            color: #c9779d; /* 浅粉色副标题 */
+            margin-bottom: 30px;
+            letter-spacing: 0.2px;
+        }
+
+        .input-container {
+            position: relative;
+            margin-bottom: 25px;
+        }
+
+        .device-input {
+            width: 100%;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 100px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            font-size: 16px;
+            color: #333;
+            text-align: center;
+            box-shadow: 
+                inset 0 2px 4px rgba(0, 0, 0, 0.05),
+                0 2px 6px rgba(0, 0, 0, 0.05);
+            outline: none;
+            border: 1px solid #ffc1d6; /* 粉色输入框边框 */
+        }
+
+        .verify-btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 100px;
+            background: linear-gradient(135deg, #ffb6d6 0%, #ff8ab7 100%); /* 粉色渐变按钮，匹配图片 */
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: #fff; /* 白色文字 */
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 
+                0 4px 20px rgba(255, 123, 172, 0.2),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* 添加涟漪效果 */
+        .verify-btn::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 100px;
+            transform: scale(0);
+            transition: transform 0.3s ease-out;
+        }
+
+        .verify-btn:active::after {
+            transform: scale(1);
+            opacity: 0;
+            transition: transform 0.5s, opacity 0.5s;
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #ff9ac8 0%, #ff7aa8 100%); /* 加深渐变 */
+            box-shadow: 
+                0 6px 25px rgba(255, 123, 172, 0.25),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.9);
+        }
+
+        .verify-btn:active {
+            transform: translateY(0) scale(0.98);
+            background: linear-gradient(135deg, #ffc1d6 0%, #ff9ab7 100%);
+            box-shadow: 
+                0 2px 10px rgba(255, 123, 172, 0.15),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+        }
+
+        .verify-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .verify-btn:hover::before {
+            opacity: 1;
+        }
+
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 30px 20px;
+            }
+            
+            .main-title {
+                font-size: 28px;
+            }
+            
+            .sub-title {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-element element-1"></div>
+    <div class="bg-element element-2"></div>
+    <div class="bg-element element-3"></div>
+    
+    <div class="glass-card">
+        <h1 id="title" class="main-title">阿越云</h1>
+        <p id="msg" class="sub-title">请验证卡密后进入使用</p>
+        
+        <div class="input-container">
+            <input type="password" class="device-input" id="card-key" placeholder="请输入卡密">
+        </div>
+        
+        <button class="verify-btn" id="verifyBtn" type="submit">
+            <span>验证</span>
+            
+        </button>
+       
+    </div>
+
+<script>
+    // 自动提交卡密验证
+    document.addEventListener("DOMContentLoaded", function() {
+        // 尝试获取上次保存的卡密
+        var savedCard = Epic?.getCard(); // 增加可选链，避免报错
+        if (savedCard) {
+            Call_Verify(savedCard);
+        }
+        // 初始化樱花花瓣
+        initSakuraPetals();
+    });
+
+    // 标题
+    function Call_GetTitle() {
+        let title = Epic?.getTitle();
+        if (!title || title.trim() === '') {
+            return '卡密验证';
+        }
+        return title;
+    }
+
+    // 内容
+    function Call_GetMsg() {
+        let msg = Epic?.getMsg();
+        if (!msg || msg.trim() === '') {
+            return '请输入你的激活码';
+        }
+        return msg.replace(/\n/g, '<br>');
+    }
+
+    // 卡密验证
+    function Call_Verify(data) {
+        Epic?.verify(data);
+    }
+
+    // 调用取消事件
+    function Call_Cancel_Event() {
+        Epic?.cancel_event();
+    }
+
+    // 调用额外事件
+    function Call_Extra_Event() {
+        Epic?.extra_event();
+    }
+
+    // 调用关闭
+    function Call_Dismiss() {
+        Epic?.dismiss();
+    }
+
+    // 验证按钮点击事件
+    document.getElementById('verifyBtn').addEventListener('click', function() {
+        const inputValue = document.getElementById('deviceCode').value;
+        if (inputValue.trim() !== '') {
+            Call_Verify(inputValue);
+        } else {
+            alert('请输入卡密');
+        }
+    });
+
+    document.getElementById("title").innerHTML = Call_GetTitle();
+    document.getElementById("msg").innerHTML = Call_GetMsg();
+
+    // 樱花花瓣生成逻辑
+    function initSakuraPetals() {
+        const petalCount = 30; // 花瓣数量，匹配图片的稀疏感
+        const body = document.body;
+
+        for (let i = 0; i < petalCount; i++) {
+            createPetal(body);
+        }
+    }
+
+    function createPetal(container) {
+        const petal = document.createElement('div');
+        petal.className = 'sakura-petal';
+
+        // 随机花瓣大小（5-15px，更纤细）
+        const size = Math.random() * 10 + 5;
+        petal.style.width = `${size}px`;
+        petal.style.height = `${size}px`;
+
+        // 随机初始位置
+        petal.style.left = `${Math.random() * 100}vw`;
+        petal.style.top = `${Math.random() * -50}px`;
+
+        // 随机动画时长（8-20秒，飘落更慢更自然）
+        const fallDuration = Math.random() * 12 + 8;
+        const swayDuration = Math.random() * 6 + 4;
+        petal.style.animationDuration = `${fallDuration}s, ${swayDuration}s`;
+
+        // 随机动画延迟
+        petal.style.animationDelay = `${Math.random() * 10}s`;
+
+        container.appendChild(petal);
+
+        // 花瓣落地后删除并重新生成
+        setTimeout(() => {
+            petal.remove();
+            setTimeout(() => createPetal(container), Math.random() * 2000);
+        }, fallDuration * 1000);
+    }
+</script>
+<script src="js/999.js"></script>
+	
+<script src="js/ayue.js"></script>
+</body>
 </html>
